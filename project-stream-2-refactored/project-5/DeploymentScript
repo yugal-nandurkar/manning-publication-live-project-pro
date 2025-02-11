@@ -1,0 +1,21 @@
+#!/bin/bash
+# deployCDN.sh
+# Usage: ./deployCDN.sh -p <port> -o <origin> -n <name> -u <username> -i <keyfile>
+
+while getopts "p:o:n:u:i:" opt; do
+  case $opt in
+    p) PORT="$OPTARG" ;;
+    o) ORIGIN="$OPTARG" ;;
+    n) NAME="$OPTARG" ;;
+    u) USERNAME="$OPTARG" ;;
+    i) KEYFILE="$OPTARG" ;;
+    *) echo "Usage: $0 -p <port> -o <origin> -n <name> -u <username> -i <keyfile>" ; exit 1 ;;
+  esac
+done
+
+# Example: copy the executables to a remote EC2 host (assuming host list is known)
+for HOST in $(cat ec2-hosts.txt); do
+    echo "Deploying to $HOST..."
+    ssh -i $KEYFILE $USERNAME@$HOST "mkdir -p ~/cdn_project"
+    scp -i $KEYFILE DNSServer.class HTTPServerCDN.class ReplicaMapper.class $USERNAME@$HOST:~/cdn_project/
+done
